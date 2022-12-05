@@ -13,12 +13,16 @@ public class Portal : MonoBehaviour {
     public float nearClipLimit = 0.2f;
 
     // Private variables
-    RenderTexture viewTexture;
+    RenderTexture leftViewTexture;
+    RenderTexture rightViewTexture;
     Camera portalCam;
     Camera playerCam;
     Material firstRecursionMat;
     List<PortalTraveller> trackedTravellers;
     MeshFilter screenMeshFilter;
+
+    Vector3 _leftOffset = new Vector3(-0.03f, 0.00f, -0.02f);
+    Vector3 _rightOffset = new Vector3(0.03f, 0.00f, 0.02f);
 
     void Awake () {
         playerCam = Camera.main;
@@ -73,6 +77,11 @@ public class Portal : MonoBehaviour {
     // Called after PrePortalRender, and before PostPortalRender
     public void Render () {
 
+        //Skip rendering the view if the player is not wearing headset
+        if (UnityEngine.XR.XRSettings.eyeTextureWidth == 0 && UnityEngine.XR.XRSettings.eyeTextureHeight == 0) {
+            return;
+        }
+
         // Skip rendering the view from this portal if player is not looking at the linked portal
         if (!CameraUtility.VisibleFromCamera (linkedPortal.screen, playerCam)) {
             return;
@@ -108,9 +117,30 @@ public class Portal : MonoBehaviour {
 
         for (int i = startIndex; i < recursionLimit; i++) {
             portalCam.transform.SetPositionAndRotation (renderPositions[i], renderRotations[i]);
+
+            // Adjust eye offsets by head camera rotation in relation to portal rotation
+            Quaternion relativeRot = playerCam.transform.rotation * linkedPortal.transform.rotation;
+            Vector3 leftEyeOffset = relativeRot * _leftOffset;
+            // Why do I have to negate the y-component for this to work? I don't know
+            leftEyeOffset = new Vector3(leftEyeOffset.x, -leftEyeOffset.y, leftEyeOffset.z);
+
+            Vector3 rightEyeOffset = relativeRot * _rightOffset;
+            rightEyeOffset = new Vector3(rightEyeOffset.x, -rightEyeOffset.y, rightEyeOffset.z);
+
+            // Move portalCam by left offset before rendering
+            portalCam.transform.localPosition = portalCam.transform.localPosition + leftEyeOffset;
+
             SetNearClipPlane ();
             HandleClipping ();
+            portalCam.targetTexture = leftViewTexture;
             portalCam.Render ();
+
+            // Move portcalCam to right offset
+            portalCam.transform.localPosition = portalCam.transform.localPosition - leftEyeOffset + rightEyeOffset;
+            SetNearClipPlane();
+            HandleClipping();
+            portalCam.targetTexture = rightViewTexture;
+            portalCam.Render();
 
             if (i == startIndex) {
                 linkedPortal.screen.material.SetInt ("displayMask", 1);
@@ -183,15 +213,22 @@ public class Portal : MonoBehaviour {
         ProtectScreenFromClipping (playerCam.transform.position);
     }
     void CreateViewTexture () {
-        if (viewTexture == null || viewTexture.width != Screen.width || viewTexture.height != Screen.height) {
-            if (viewTexture != null) {
-                viewTexture.Release ();
+        if (leftViewTexture == null || leftViewTexture.width != UnityEngine.XR.XRSettings.eyeTextureWidth || leftViewTexture.height != UnityEngine.XR.XRSettings.eyeTextureHeight) {
+            if (leftViewTexture != null) {
+                leftViewTexture.Release ();
             }
-            viewTexture = new RenderTexture (Screen.width, Screen.height, 0);
-            // Render the view from the portal camera to the view texture
-            portalCam.targetTexture = viewTexture;
+            leftViewTexture = new RenderTexture (UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 0);
             // Display the view texture on the screen of the linked portal
-            linkedPortal.screen.material.SetTexture ("_MainTex", viewTexture);
+            linkedPortal.screen.material.SetTexture ("_LeftEyeTex", leftViewTexture);
+        }
+
+        if (rightViewTexture == null || rightViewTexture.width != UnityEngine.XR.XRSettings.eyeTextureWidth || rightViewTexture.height != UnityEngine.XR.XRSettings.eyeTextureHeight) {
+            if (rightViewTexture != null) {
+                rightViewTexture.Release();
+            }
+            rightViewTexture = new RenderTexture(UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 0);
+            // Display the view texture on the screen of the linked portal
+            linkedPortal.screen.material.SetTexture("_RightEyeTex", rightViewTexture);
         }
     }
 

@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Don't Render
   - Water
   - UI
-  - 
-  - 
+  - Pegavel
+  - Player
   - 
   - 
   - 

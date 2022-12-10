@@ -10,3 +10,5 @@ EditorBuildSettings:
       type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: b9e741f232f79b34e9d690fd3aea6f96,
       type: 2}
+    xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: 760150c280d3910449164ea498b80ab4,
+      type: 2}

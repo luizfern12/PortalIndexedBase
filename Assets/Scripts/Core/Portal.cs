@@ -217,7 +217,7 @@ public class Portal : MonoBehaviour {
             if (leftViewTexture != null) {
                 leftViewTexture.Release ();
             }
-            leftViewTexture = new RenderTexture (UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 0);
+            leftViewTexture = new RenderTexture (UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 16);
             // Display the view texture on the screen of the linked portal
             linkedPortal.screen.material.SetTexture ("_LeftEyeTex", leftViewTexture);
         }
@@ -226,7 +226,7 @@ public class Portal : MonoBehaviour {
             if (rightViewTexture != null) {
                 rightViewTexture.Release();
             }
-            rightViewTexture = new RenderTexture(UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 0);
+            rightViewTexture = new RenderTexture(UnityEngine.XR.XRSettings.eyeTextureWidth, UnityEngine.XR.XRSettings.eyeTextureHeight, 16);
             // Display the view texture on the screen of the linked portal
             linkedPortal.screen.material.SetTexture("_RightEyeTex", rightViewTexture);
         }

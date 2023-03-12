@@ -1,8 +1,5 @@
-# Portals
+# Portal Indexed Portal System
 
-Little test of portals in Unity.
-Note: in the two worlds scene, you'll need to have Blender installed to view some of the models.
+This is based on: https://github.com/Malarkey817/PortalsVR.
 
-[Watch video](https://www.youtube.com/watch?v=cWpFZbjtSQg)
-
-![Portals](https://raw.githubusercontent.com/SebLague/Images/master/Portals.png)
+I just did some tweaks for it to properly work in VR and quest platforms.
